@@ -27,9 +27,10 @@
  *		(TODO: 通过Geth搭建过以太坊节点的个人熟悉 keystore 文件)
  */
 
-const INFURA_API = 'https://mainnet.infura.io/v3/a863a357d92641fcaa7f794b3f81cf7d'
+// const INFURA_MAIN_API = 'https://mainnet.infura.io/v3/a863a357d92641fcaa7f794b3f81cf7d'
+const INFURA_GOERLI_API = 'https://mainnet.infura.io/v3/a863a357d92641fcaa7f794b3f81cf7d'
 import { ethers } from "ethers";
-const provider = new ethers.providers.JsonRpcProvider(INFURA_API)
+const provider = new ethers.providers.JsonRpcProvider(INFURA_GOERLI_API)
 const main = async () => {
 
 	// 创建随机的wallet对象
@@ -76,12 +77,12 @@ const main = async () => {
     console.log(`i. 发送前余额`)
     console.log(`钱包1: ${ethers.utils.formatEther(await wallet1WithProvider.getBalance())} ETH`)
     console.log(`钱包2: ${ethers.utils.formatEther(await wallet2.getBalance())} ETH`)
-    // ii. 构造交易请求, 参数: to为接收地址，value为ETH数额
+    // ii. 构造交易请求, 参数: to为接收地址, value为ETH数额
     const tx = {
         to: address1,
         value: ethers.utils.parseEther("0.001")
     }
-    // iii. 发送交易，获得收据
+    // iii. 发送交易, 获得收据
     console.log(`\nii. 等待交易在区块链确认(需要几分钟)`)
     const receipt = await wallet2.sendTransaction(tx)
     await receipt.wait() // 等待链上确认交易
