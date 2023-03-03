@@ -24,10 +24,9 @@
 
 import { ethers } from "ethers";
 
-// 利用Infura的rpc节点连接以太坊网络
-const INFURA_ID = '184d4c5ec78243c290d151d3f1a10f1d'
-// 连接Rinkeby测试网
-const provider = new ethers.providers.JsonRpcProvider(`https://rinkeby.infura.io/v3/${INFURA_ID}`)
+const INFURA_API = 'https://mainnet.infura.io/v3/a863a357d92641fcaa7f794b3f81cf7d'
+// 连接rinkeby测试网
+const provider = new ethers.providers.JsonRpcProvider(INFURA_API)
 
 // 利用私钥和provider创建wallet对象
 const privateKey = '0x227dbb8586117d55284e26620bc76534dfbd2394be34cf4a09cb775d593b6f2b'
