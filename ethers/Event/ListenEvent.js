@@ -1,15 +1,11 @@
 /*
  *	监听合约事件
+ *
  *  在ethersjs中合约对象有一个contract.on的监听方法, 可以持续监听合约的事件:
  *  contract.on("eventName", function)
  *
  *  合约对象的 contract.once 方法, 可以只监听一次合约释放事件
  *  contract.once("eventName", function)
- *
- *
- *
- *
- *
  *
  */
 
