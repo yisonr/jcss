@@ -42,10 +42,10 @@ console.groupEnd();
 // wei				0
 // kwei				3
 // mwei				6
-// gwei				9
-// szabo			12
-// finney			15
-// ether			18
+// gwei				9   gas费单位
+// szabo			12  萨博
+// finney			15  芬尼
+// ether			18  以太
 
 
 // 在应用中经常将数值在用户可读的字符串(以ether为单位)和机器可读的数值
