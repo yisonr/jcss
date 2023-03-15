@@ -100,7 +100,7 @@ console.log("合约已上链")
 console.log("\n3. 调用mint()函数, 利用merkle tree验证白名单, 给第一个地址铸造NFT")
 console.log(`NFT名称: ${await contractNFT.name()}`)
 console.log(`NFT代号: ${await contractNFT.symbol()}`)
-let tx = await contractNFT.mint(tokens[0], "0", proof)
+let tx = await contractNFT.mint(tokens[0], "0", proof) // TODO: 0 tokenId 指?
 console.log("铸造中，等待交易上链")
 await tx.wait()
 console.log(`mint成功，地址${tokens[0]} 的NFT余额: ${await contractNFT.balanceOf(tokens[0])}\n`)
