@@ -24,7 +24,7 @@
 
 // 监听 mempool 脚本
 
-import { ethers } from "ethers"
+import { ethers, utils } from "ethers"
 
 //
 // 1. 创建provider和wallet, 使用provider的WebSocket Provider更持久的监听交易,
@@ -49,20 +49,66 @@ function throttle(fn, delay) {
     }
 }
 
-// 3. 监听mempool的未决交易, 并打印交易哈希
-let j = 0
-provider.on("pending", throttle(async (txHash) => {
-    if (txHash && j < 100) {
-        // 打印txHash
-		// 获取tx详情
-        let tx = await provider.getTransaction(txHash);
-        console.log(`[${(new Date).toLocaleTimeString()}] 监听Pending交易 ${j}: ${txHash} \r`);
-		console.log(tx);
-        j++
-    }
-}, 1000));
 
-// 4. 通过未决交易的哈希, 获取交易详情; 可以看到交易还未上链, 其blockHash,
+// 3. 创建 Interface 对象, 用于解码交易详情
+// 如果输入参数是solidity的struct结构体类型时, 我们要做特殊处理, 在javascript
+// 中改为tuple元组类型, 上面的exactInputSingle()函数的参数为
+// ExactInputSingleParams结构体:
+// struct ExactInputSingleParams {
+//       address tokenIn;
+//       address tokenOut;
+//       uint24 fee;
+//       address recipient;
+//       uint256 deadline;
+//       uint256 amountIn;
+//       uint256 amountOutMinimum;
+//       uint160 sqrtPriceLimitX96;
+// }
+// 在js中要写为:
+const iface = new utils.Interface([
+    "function exactInputSingle(tuple(address tokenIn, address tokenOut, uint24 fee, address recipient, uint deadline, uint amountIn, uint amountOutMinimum, uint160 sqrtPriceLimitX96) calldata) external payable returns (uint amountOut)",
+])
+
+
+// 4. 监听mempool的未决交易, 并打印交易哈希
+// let j = 0
+// provider.on("pending", throttle(async (txHash) => {
+//     if (txHash && j < 100) {
+//         // 打印txHash
+// 		// 获取tx详情
+//         let tx = await provider.getTransaction(txHash);
+//         console.log(`[${(new Date).toLocaleTimeString()}] 监听Pending交易 ${j}: ${txHash} \r`);
+// 		console.log(tx);
+//         j++
+//     }
+// }, 1000));
+
+// 4. 监听pending的uniswapV3(TODO)交易, 获取交易详情并解码; 只解码通过Uniswap V3路
+// 由合约的exactInputSingle()函数的交易; 网络不活跃的时候, 可能需要等待几分
+// 钟才能监听到一笔
+provider.on("pending", throttle(async (txHash) => {
+    if (txHash) {
+        // 获取tx详情
+        let tx = await provider.getTransaction(txHash);
+        if (tx) {
+            // filter pendingTx.data
+            if (tx.data.indexOf(iface.getSighash("exactInputSingle")) !== -1) { // TODO
+                // 打印txHash
+                console.log(`\n[${(new Date).toLocaleTimeString()}] 监听Pending交易: ${txHash} \r`);
+
+                // 打印解码的交易详情
+                let parsedTx = iface.parseTransaction(tx)
+                console.log("pending交易详情解码：")
+                console.log(parsedTx);
+                // Input data解码
+                console.log("Input Data解码：")
+                console.log(parsedTx.args);
+            }
+        }
+    }
+}, 100));
+
+// 5. 通过未决交易的哈希, 获取交易详情; 可以看到交易还未上链, 其blockHash,
 // blockNumber, 和transactionIndex都为空; 但是可以获取到交易的发送者地址from,
 // 燃料费gasPrice, 目标地址to, 发送的以太数额value, 发送数据data等等信息;
 // 机器人就是利用这些信息进行MEV挖掘的
